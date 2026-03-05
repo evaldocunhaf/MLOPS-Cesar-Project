@@ -1,4 +1,3 @@
-from baseApiExtractor import BaseExtract
-from kaggleExtract import KaggleExtract
+from .kaggleExtract import KaggleExtract
 
-__all__ = ['BaseExtract', 'KaggleExtract']
+__all__ = ['KaggleExtract']
