@@ -420,3 +420,4 @@ FodyWeavers.xsd
 #Extra files
 .DS_Store
 .idea/
+*.csv
