@@ -10,7 +10,7 @@ class KaggleExtract(BaseExtract):
         dataset_dir = Path(kagglehub.dataset_download("shaistashahid/gaming-and-mental-health"))
 
         project_root = Path(__file__).resolve().parents[1]
-        final_dir = project_root / "data"
+        final_dir = project_root / "data/raw"
         final_dir.mkdir(parents=True, exist_ok=True)
 
         csv_files = sorted(dataset_dir.rglob("*.csv"))
