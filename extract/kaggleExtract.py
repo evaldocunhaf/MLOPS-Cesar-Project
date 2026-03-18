@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 import kagglehub
-from .baseApiExtractor import BaseExtract
+from extract.baseApiExtractor import BaseExtract
 
 
 class KaggleExtract(BaseExtract):
