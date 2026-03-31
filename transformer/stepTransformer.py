@@ -10,6 +10,18 @@ class StepTransformer(BaseTransformer):
     def transform(self, data_path: str):
         df = pd.read_csv(data_path)
         df1 = df[self.columns]
+
+        mapping = {
+            "Failing": "Low",
+            "Poor": "Low",
+            "Below Average": "Medium",
+            "Average": "Medium",
+            "Good": "High",
+            "Excellent": "High",
+        }
+
+        df1["academic_work_performance"] = df1["academic_work_performance"].map(mapping)
+
         project_root = Path(__file__).resolve().parents[1]
         final_dir = project_root / "data/raw"
         df1.to_parquet(final_dir / 'data.parquet')
