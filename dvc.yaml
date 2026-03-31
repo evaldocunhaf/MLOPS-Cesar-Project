@@ -1,10 +1,17 @@
 stages:
+  extract:
+    cmd: python extract.py
+    deps:
+      - extract.py
+      - extract/
+    outs:
+      - data/raw/Gaming and Mental Health.csv
+
   preprocess:
     cmd: python transform.py
     deps:
-      - data/processed/Gaming and Mental Health.csv
+      - data/raw/Gaming and Mental Health.csv
       - transform.py
       - transformer/
     outs:
-      - data/processed/data.csv
-      - data/raw/data.parquet
+      - data/processed/data.parquet
