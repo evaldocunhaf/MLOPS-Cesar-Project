@@ -421,3 +421,12 @@ FodyWeavers.xsd
 .DS_Store
 .idea/
 *.csv
+
+# MLflow server data (Docker volume mounts)
+mlruns/
+mlartifacts/
+mlflow-docker/mlruns/
+mlflow-docker/mlartifacts/
+
+# Virtual environment
+.venv/

@@ -23,7 +23,6 @@ class StepTransformer(BaseTransformer):
         df1["academic_work_performance"] = df1["academic_work_performance"].map(mapping)
 
         project_root = Path(__file__).resolve().parents[1]
-        final_dir = project_root / "data/raw"
-        df1.to_parquet(final_dir / 'data.parquet')
         final_dir = project_root / "data/processed"
+        df1.to_parquet(final_dir / 'data.parquet')
         df1.to_csv(final_dir / 'data.csv', index=False)

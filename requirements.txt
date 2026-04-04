@@ -118,7 +118,10 @@ pandocfilters==1.5.1
 parso==0.8.6
 pathspec==1.0.4
 pexpect==4.9.0
-pip @ file:///Users/evaldocunhafilho/Applications/PyCharm.app/Contents/plugins/python-ce/helpers/pip-24.3.1-py2.py3-none-any.whl
+mlflow==3.10.1
+xgboost==3.2.0
+fastapi==0.135.3
+uvicorn[standard]==0.43.0
 platformdirs==4.9.2
 plotly==6.6.0
 prometheus-client==0.24.1

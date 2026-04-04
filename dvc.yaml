@@ -1,6 +1,6 @@
 stages:
   extract:
-    cmd: python extract.py
+    cmd: .venv/bin/python extract.py
     deps:
       - extract.py
       - extract/
@@ -8,10 +8,30 @@ stages:
       - data/raw/Gaming and Mental Health.csv
 
   preprocess:
-    cmd: python transform.py
+    cmd: .venv/bin/python transform.py
     deps:
       - data/raw/Gaming and Mental Health.csv
       - transform.py
       - transformer/
     outs:
       - data/processed/data.parquet
+
+  train:
+    cmd: .venv/bin/python train.py
+    deps:
+      - train.py
+      - trainer/
+      - data/processed/data.parquet
+      - params.yaml
+    params:
+      - params.yaml:
+          - data
+          - train
+          - random_forest
+          - knn
+          - xgboost
+    outs:
+      - models/model_pipeline.joblib
+    metrics:
+      - metrics/metrics.json:
+          cache: false
