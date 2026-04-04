@@ -1,0 +1,107 @@
+schema: '2.0'
+stages:
+  extract:
+    cmd: .venv/bin/python extract.py
+    deps:
+    - path: extract.py
+      hash: md5
+      md5: 01bba2108e9833e99d37c35f0a2699cd
+      size: 78
+    - path: extract/
+      hash: md5
+      md5: 6d97e9b11b592e49a70c074a94a27013.dir
+      size: 3839
+      nfiles: 6
+    outs:
+    - path: data/raw/Gaming and Mental Health.csv
+      hash: md5
+      md5: bea0bfe67e7c37b640e44e8141ee02e4
+      size: 152355
+  preprocess:
+    cmd: .venv/bin/python transform.py
+    deps:
+    - path: data/raw/Gaming and Mental Health.csv
+      hash: md5
+      md5: bea0bfe67e7c37b640e44e8141ee02e4
+      size: 152355
+    - path: transform.py
+      hash: md5
+      md5: 9e54ce6a7615827cf7e2d217376ad10a
+      size: 403
+    - path: transformer/
+      hash: md5
+      md5: e97868b1bf323ee267f51ae01b2a84e2.dir
+      size: 3603
+      nfiles: 6
+    outs:
+    - path: data/processed/data.parquet
+      hash: md5
+      md5: 2518bd84f74e7876bfd9e1e0005122e6
+      size: 15679
+  train:
+    cmd: .venv/bin/python train.py
+    deps:
+    - path: data/processed/data.parquet
+      hash: md5
+      md5: 2518bd84f74e7876bfd9e1e0005122e6
+      size: 15679
+    - path: params.yaml
+      hash: md5
+      md5: 22b649fdef9c2d75dee148fd735de2e8
+      size: 861
+    - path: train.py
+      hash: md5
+      md5: 264b5c4944e93369d45a33c3ed42261e
+      size: 5364
+    - path: trainer/
+      hash: md5
+      md5: 3f9dcbd08fc42395a37be77db1d9e9f2.dir
+      size: 5844
+      nfiles: 6
+    params:
+      params.yaml:
+        data:
+          processed_path: data/processed/data.parquet
+          test_size: 0.2
+          random_state: 42
+          target_column: academic_work_performance
+          features:
+          - age
+          - gender
+          - daily_gaming_hours
+          - game_genre
+          - primary_game
+          - gaming_platform
+          - sleep_hours
+          - sleep_quality
+          - sleep_disruption_frequency
+          - face_to_face_social_hours_weekly
+        knn:
+          n_neighbors: 7
+          weights: uniform
+          metric: minkowski
+        random_forest:
+          n_estimators: 100
+          max_depth:
+          min_samples_split: 2
+          min_samples_leaf: 1
+          class_weight: balanced
+          n_jobs: -1
+        train:
+          model: xgboost
+          experiment_name: gaming-mental-health
+        xgboost:
+          n_estimators: 200
+          max_depth: 6
+          learning_rate: 0.1
+          subsample: 0.8
+          eval_metric: mlogloss
+    outs:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: 29ba961191a658688ba26f930acff7e0
+      size: 81
+    - path: models/model_pipeline.joblib
+      hash: md5
+      md5: 4e0c939af86add6b111967c436b3deed
+      size: 1348259
