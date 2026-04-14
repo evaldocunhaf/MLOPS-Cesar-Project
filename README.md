@@ -1,6 +1,16 @@
+![Python](https://img.shields.io/badge/Python-3.13-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+
 # Gaming & Mental Health MLOps — DEV
 
 Projeto de classificação de desempenho acadêmico/profissional (`High`, `Medium`, `Low`) com base em hábitos de jogos e sono, construído como um pipeline de Machine Learning com boas práticas de MLOps.
+
+## ✅ Pré-requisitos
+- **Python 3.13** instalado
+- **Docker** e **Docker Compose** rodando
+- **~2GB** de espaço livre para dados e modelos
+- **Git** para versionamento
 
 ## 🚀 O que este projeto faz
 Dado o perfil de um jogador (idade, gênero, horas de jogo, qualidade do sono, etc.), o modelo prediz o nível de performance acadêmica/trabalho do indivíduo utilizando algoritmos de classificação (XGBoost, Random Forest ou KNN).
@@ -165,3 +175,32 @@ Atualmente, o **Random Forest** apresenta os melhores resultados para este datas
 - Tuning automático de hiperparâmetros via Optuna.
 - Adicionar novas features (como proporção de sono por horas de jogo).
 - Implementar testes automatizados para validar o pré-processamento.
+
+---
+
+## 🔧 Troubleshooting
+
+### Docker não sobe?
+```bash
+# Verifique se o Docker está rodando
+docker --version
+docker compose version
+```
+
+### MLflow não conecta?
+Aguarde 30 segundos após `docker compose up -d` para os serviços iniciarem completamente.
+
+### Pipeline falha no download?
+Verifique sua conexão com a internet e se o Kaggle está acessível:
+```bash
+curl -I https://www.kaggle.com
+```
+
+### Erro de permissão?
+Garanta que o ambiente virtual está ativado:
+```bash
+# Windows
+.venv\Scripts\Activate.ps1
+# Linux/Mac
+source .venv/bin/activate
+```
