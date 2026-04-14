@@ -4,12 +4,13 @@ from .baseTransformer import BaseTransformer
 from pathlib import Path
 
 class StepTransformer(BaseTransformer):
-    def __init__(self, columns: list):
+    def __init__(self, columns: list, target_column: str):
         self.columns = columns
+        self.target_column = target_column
 
     def transform(self, data_path: str):
         df = pd.read_csv(data_path)
-        df1 = df[self.columns]
+        df1 = df[self.columns].copy()
 
         mapping = {
             "Failing": "Low",
@@ -20,7 +21,7 @@ class StepTransformer(BaseTransformer):
             "Excellent": "High",
         }
 
-        df1["academic_work_performance"] = df1["academic_work_performance"].map(mapping)
+        df1[self.target_column] = df1[self.target_column].map(mapping)
 
         project_root = Path(__file__).resolve().parents[1]
         final_dir = project_root / "data/processed"
