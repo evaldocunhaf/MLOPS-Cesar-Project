@@ -16,7 +16,7 @@ data:
     - face_to_face_social_hours_weekly
 
 train:
-  model: xgboost
+  model: random_forest
   experiment_name: gaming-mental-health
 
 random_forest:

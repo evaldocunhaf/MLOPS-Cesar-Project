@@ -1,6 +1,6 @@
 stages:
   extract:
-    cmd: .venv/bin/python extract.py
+    cmd: python extract.py
     deps:
       - extract.py
       - extract/
@@ -8,7 +8,7 @@ stages:
       - data/raw/Gaming and Mental Health.csv
 
   preprocess:
-    cmd: .venv/bin/python transform.py
+    cmd: python transform.py
     deps:
       - data/raw/Gaming and Mental Health.csv
       - transform.py
@@ -17,7 +17,7 @@ stages:
       - data/processed/data.parquet
 
   train:
-    cmd: .venv/bin/python train.py
+    cmd: python train.py
     deps:
       - train.py
       - trainer/
