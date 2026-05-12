@@ -2,6 +2,7 @@ import json
 import yaml
 import joblib
 import mlflow
+import dagshub
 import mlflow.sklearn
 import pandas as pd
 from pathlib import Path
@@ -11,9 +12,14 @@ from sklearn.neighbors import KNeighborsClassifier
 
 from trainer import SklearnTrainer
 
+from dotenv import load_dotenv
+
 # ------------------------------------------------------------------
 # Load params
 # ------------------------------------------------------------------
+
+load_dotenv()
+
 with open("params.yaml") as f:
     params = yaml.safe_load(f)
 
@@ -116,6 +122,7 @@ print("Metrics:", metrics)
 # ------------------------------------------------------------------
 # MLflow logging
 # ------------------------------------------------------------------
+dagshub.init(repo_owner='evaldocunhaf', repo_name='MLOPs-Cesar', mlflow=True)
 mlflow.set_tracking_uri(TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 

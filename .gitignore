@@ -433,3 +433,4 @@ mlflow-docker/mlartifacts/
 
 # Virtual environment
 .venv/
+.dvc/config

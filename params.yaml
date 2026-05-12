@@ -17,7 +17,7 @@ data:
     - face_to_face_social_hours_weekly
 
 train:
-  model: random_forest
+  model: knn
   experiment_name: gaming-mental-health
 
 random_forest:
@@ -41,7 +41,7 @@ xgboost:
   eval_metric: mlogloss
 
 mlflow:
-  tracking_uri: http://localhost:5050
+  tracking_uri: https://dagshub.com/evaldocunhaf/MLOPs-Cesar.mlflow
   model_artifact_path: model
 
 output:

@@ -5,12 +5,12 @@ stages:
     deps:
     - path: extract.py
       hash: md5
-      md5: 3d37dc2470d415c30b2bde6359360ae2
-      size: 81
+      md5: 01bba2108e9833e99d37c35f0a2699cd
+      size: 78
     - path: extract/
       hash: md5
-      md5: 79e014d3d604762eab519cddfe04e5a9.dir
-      size: 3938
+      md5: 9aba3b9b7d544011fed820a92c628c76.dir
+      size: 3934
       nfiles: 6
     outs:
     - path: data/raw/Gaming and Mental Health.csv
@@ -26,41 +26,42 @@ stages:
       size: 152355
     - path: transform.py
       hash: md5
-      md5: 18cfe4f0e2088f285987f2d4b05f1350
-      size: 411
+      md5: e9b38b4634c1035f2f7ad4e9b025d88e
+      size: 424
     - path: transformer/
       hash: md5
-      md5: 027e8ac5704bbddceb04dec356dd09b8.dir
-      size: 3695
+      md5: 0cb3e3d88e2dcdfd1b6180c9e37db3e3.dir
+      size: 3889
       nfiles: 6
     outs:
     - path: data/processed/data.parquet
       hash: md5
-      md5: cd277ba7c58b23188a1bd256f3c51efe
-      size: 15679
+      md5: cd451158f74faccd0389aefdee3977f2
+      size: 15608
   train:
     cmd: python train.py
     deps:
     - path: data/processed/data.parquet
       hash: md5
-      md5: cd277ba7c58b23188a1bd256f3c51efe
-      size: 15679
+      md5: cd451158f74faccd0389aefdee3977f2
+      size: 15608
     - path: params.yaml
       hash: md5
-      md5: e3ef14448dd46e01fb203854adee7261
-      size: 915
+      md5: 7d8a1c550f2c12010c7cfdd963530b38
+      size: 937
     - path: train.py
       hash: md5
-      md5: 5d29bd3948bb8bfc5beec1b052335fed
-      size: 5514
+      md5: 7d2740efa638b9be6c0bca9faddfd751
+      size: 5505
     - path: trainer/
       hash: md5
-      md5: b900a90d050d8c2a65cf956ffc0efdb5.dir
-      size: 5927
+      md5: 412f56db34a4d9f7d10865e054409e08.dir
+      size: 5949
       nfiles: 6
     params:
       params.yaml:
         data:
+          raw_path: data/raw/Gaming and Mental Health.csv
           processed_path: data/processed/data.parquet
           test_size: 0.2
           random_state: 42
@@ -88,7 +89,7 @@ stages:
           class_weight: balanced
           n_jobs: -1
         train:
-          model: random_forest
+          model: knn
           experiment_name: gaming-mental-health
         xgboost:
           n_estimators: 200
@@ -99,9 +100,9 @@ stages:
     outs:
     - path: metrics/metrics.json
       hash: md5
-      md5: 4dac1ea93eaa61587187340c54cf62b0
-      size: 86
+      md5: 3bf03c6f5e3378f687d03f6b149b0b53
+      size: 81
     - path: models/model_pipeline.joblib
       hash: md5
-      md5: f83b4cec9149e59c373f9bf2f24c053a
-      size: 5167962
+      md5: 698fdc440ba4bfe27bd0f3e4c7a1298e
+      size: 110670
