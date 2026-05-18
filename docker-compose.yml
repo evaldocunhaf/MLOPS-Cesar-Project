@@ -1,23 +1,25 @@
-version: '3.8'
 services:
-  mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
-    container_name: mlflow_server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: gaming_api
     ports:
-      - "5050:5000"
+      - "8000:8000"
     volumes:
-      - ./mlflow-docker/mlruns:/mlruns
-      - ./mlflow-docker/mlartifacts:/mlartifacts
-    command: >
-      mlflow server
-      --backend-store-uri file:///mlruns
-      --default-artifact-root file:///mlartifacts
-      --artifacts-destination file:///mlartifacts
-      --serve-artifacts
-      --host 0.0.0.0
-      --port 5000
+      - ./models:/app/models:ro
+    env_file:
+      - .env                             
+    environment:
+      - MLFLOW_TRACKING_URI=https://dagshub.com/evaldocunhaf/MLOPs-Cesar.mlflow
+      - MODEL_URI=models:/gaming-mental-health/latest
     restart: always
 
-volumes:
-  mlruns:
-  mlartifacts:
+  web:
+    build: ./web
+    container_name: gaming_web
+    ports:
+      - "8501:80"
+    depends_on:
+      - api
+    restart: always

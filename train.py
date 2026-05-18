@@ -2,7 +2,6 @@ import json
 import yaml
 import joblib
 import mlflow
-import dagshub
 import mlflow.sklearn
 import pandas as pd
 from pathlib import Path
@@ -122,7 +121,8 @@ print("Metrics:", metrics)
 # ------------------------------------------------------------------
 # MLflow logging
 # ------------------------------------------------------------------
-dagshub.init(repo_owner='evaldocunhaf', repo_name='MLOPs-Cesar', mlflow=True)
+# Auth com DagsHub: MLFLOW_TRACKING_USERNAME e MLFLOW_TRACKING_PASSWORD
+# vêm do .env via load_dotenv() acima — o cliente MLflow lê essas env vars automaticamente.
 mlflow.set_tracking_uri(TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
@@ -138,14 +138,23 @@ if label_encoder is not None:
     joblib.dump(label_encoder, MODELS_DIR / "label_encoder.joblib")
 print(f"Model saved to {model_path}")
 
-with mlflow.start_run():
+REGISTERED_MODEL_NAME = "gaming-mental-health"
+
+with mlflow.start_run() as run:
     mlflow.log_params({"model": MODEL_NAME, "test_size": TEST_SIZE, "random_state": RANDOM_STATE})
     mlflow.log_params(model_params)
     mlflow.log_metrics(metrics)
     try:
-        mlflow.log_artifact(str(model_path), artifact_path=ARTIFACT_PATH)
+        # Logs the sklearn pipeline AND registers a new version in the Model Registry.
+        # The API can then pull it via `mlflow.sklearn.load_model("models:/gaming-mental-health/<version>")`.
+        result = mlflow.sklearn.log_model(
+            sk_model=pipeline,
+            artifact_path=ARTIFACT_PATH,
+            registered_model_name=REGISTERED_MODEL_NAME,
+        )
+        print(f"Model registered: {REGISTERED_MODEL_NAME} (run_id={run.info.run_id})")
     except Exception as e:
-        print(f"Warning: could not upload artifact to MLflow server ({e}). Model is saved locally at {model_path}")
+        print(f"Warning: could not log/register model on MLflow server ({e}). Model is saved locally at {model_path}")
 
 # ------------------------------------------------------------------
 # DVC metrics

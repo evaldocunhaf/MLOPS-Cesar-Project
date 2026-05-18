@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaming Performance Predictor</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-2: #0b1220;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --border: #334155;
+      --high: #10b981;
+      --medium: #f59e0b;
+      --low: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+    main { max-width: 820px; margin: 0 auto; }
+    h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }
+    p.subtitle { margin: 0 0 1rem; color: var(--muted); font-size: 0.95rem; }
+
+    .links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding: 0.65rem 0.85rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .links a:hover { text-decoration: underline; }
+    .links .sep { color: var(--muted); }
+
+    form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .field { display: flex; flex-direction: column; }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    input, select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    button {
+      grid-column: 1 / -1;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    button:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #result {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 1.1rem;
+      display: none;
+    }
+    #result.show { display: block; }
+    #result.high { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--high); }
+    #result.medium { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--medium); }
+    #result.low { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--low); }
+    #result.error { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--low); }
+    #result .label { color: var(--muted); font-size: 0.85rem; }
+    #result .value { font-size: 1.8rem; font-weight: 700; margin-top: 0.25rem; }
+    #result.high .value { color: var(--high); }
+    #result.medium .value { color: var(--medium); }
+    #result.low .value { color: var(--low); }
+
+    .panel {
+      margin-top: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .panel h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.05rem;
+    }
+    .panel .panel-sub {
+      margin: 0 0 0.9rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.5rem;
+    }
+    .examples button {
+      grid-column: auto;
+      margin: 0;
+      padding: 0.55rem 0.7rem;
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      line-height: 1.25;
+    }
+    .examples button:hover {
+      border-color: var(--accent);
+      background: var(--bg);
+    }
+    .examples button .ex-title {
+      display: block;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .examples button .ex-hint {
+      display: block;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 0.15rem;
+    }
+
+    .debugger pre {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 0.9rem;
+      font-family: "SF Mono", Monaco, Consolas, "Courier New", monospace;
+      font-size: 0.8rem;
+      color: var(--text);
+      overflow-x: auto;
+      margin: 0.35rem 0 0.9rem;
+      line-height: 1.5;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .debugger .dbg-section {
+      margin-top: 0.75rem;
+    }
+    .debugger .dbg-section:first-child { margin-top: 0; }
+    .debugger .dbg-label {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .debugger .status-pill {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-pill.ok { background: rgba(16, 185, 129, 0.2); color: var(--high); }
+    .status-pill.err { background: rgba(239, 68, 68, 0.2); color: var(--low); }
+    .status-pill.idle { background: var(--bg); color: var(--muted); }
+    .debugger .empty {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Gaming Performance Predictor</h1>
+    <p class="subtitle">Predict academic/work performance from gaming and sleep habits.</p>
+
+    <div class="links">
+      🚀 <a href="http://localhost:8000/docs" target="_blank">API docs (Swagger)</a>
+      <span class="sep">·</span>
+      ❤️ <a href="http://localhost:8000/health" target="_blank">/health</a>
+      <span class="sep">·</span>
+      🐶 <a href="https://dagshub.com/evaldocunhaf/MLOPs-Cesar" target="_blank">DagsHub repo</a>
+      <span class="sep">·</span>
+      🧪 <a href="https://dagshub.com/evaldocunhaf/MLOPs-Cesar.mlflow" target="_blank">MLflow on DagsHub</a>
+      <span class="sep">·</span>
+      <span id="model-source" style="color: var(--muted);">Model: <span id="model-source-value">loading...</span></span>
+    </div>
+
+    <form id="form">
+      <div class="field">
+        <label for="age">Age</label>
+        <input id="age" name="age" type="number" min="10" max="100" step="1" value="22" required>
+      </div>
+
+      <div class="field">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" required>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="daily_gaming_hours">Daily gaming hours</label>
+        <input id="daily_gaming_hours" name="daily_gaming_hours" type="number" min="0" max="24" step="0.1" value="4.5" required>
+      </div>
+
+      <div class="field">
+        <label for="game_genre">Game genre</label>
+        <select id="game_genre" name="game_genre" required>
+          <option>FPS</option>
+          <option>MOBA</option>
+          <option>RPG</option>
+          <option>Battle Royale</option>
+          <option>MMO</option>
+          <option>Strategy</option>
+          <option>Mobile Games</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="primary_game">Primary game</label>
+        <select id="primary_game" name="primary_game" required>
+          <option>Valorant</option>
+          <option>League of Legends</option>
+          <option>Dota 2</option>
+          <option>CS:GO</option>
+          <option>Apex Legends</option>
+          <option>Call of Duty</option>
+          <option>Fortnite</option>
+          <option>Warzone</option>
+          <option>PUBG</option>
+          <option>PUBG Mobile</option>
+          <option>Overwatch</option>
+          <option>Mobile Legends</option>
+          <option>Clash of Clans</option>
+          <option>Candy Crush</option>
+          <option>Genshin Impact</option>
+          <option>Final Fantasy XIV</option>
+          <option>World of Warcraft</option>
+          <option>Elder Scrolls Online</option>
+          <option>Elden Ring</option>
+          <option>Skyrim</option>
+          <option>Cyberpunk 2077</option>
+          <option>StarCraft II</option>
+          <option>Age of Empires</option>
+          <option>Civilization VI</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="gaming_platform">Gaming platform</label>
+        <select id="gaming_platform" name="gaming_platform" required>
+          <option>PC</option>
+          <option>Console</option>
+          <option>Mobile</option>
+          <option>Multi-platform</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="sleep_hours">Sleep hours / night</label>
+        <input id="sleep_hours" name="sleep_hours" type="number" min="0" max="24" step="0.1" value="6" required>
+      </div>
+
+      <div class="field">
+        <label for="sleep_quality">Sleep quality</label>
+        <select id="sleep_quality" name="sleep_quality" required>
+          <option>Very Poor</option>
+          <option>Poor</option>
+          <option>Fair</option>
+          <option>Good</option>
+          <option>Insomnia</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="sleep_disruption_frequency">Sleep disruption frequency</label>
+        <select id="sleep_disruption_frequency" name="sleep_disruption_frequency" required>
+          <option>Never</option>
+          <option>Rarely</option>
+          <option>Sometimes</option>
+          <option>Often</option>
+          <option>Always</option>
+        </select>
+      </div>
+
+      <div class="field full">
+        <label for="face_to_face_social_hours_weekly">Face-to-face social hours / week</label>
+        <input id="face_to_face_social_hours_weekly" name="face_to_face_social_hours_weekly" type="number" min="0" max="168" step="0.1" value="8" required>
+      </div>
+
+      <button type="submit" id="submit-btn">Predict</button>
+    </form>
+
+    <div id="result"></div>
+
+    <section class="panel">
+      <h2>Examples</h2>
+      <p class="panel-sub">Click to fill the form with a preset profile.</p>
+      <div class="examples" id="examples"></div>
+    </section>
+
+    <section class="panel debugger">
+      <h2>Debugger</h2>
+      <p class="panel-sub">Last request/response captured from <code>POST /predict</code>.</p>
+
+      <div class="dbg-section">
+        <div class="dbg-label">
+          <span>Status</span>
+          <span class="status-pill idle" id="dbg-status">idle</span>
+          <span id="dbg-meta" style="margin-left:auto; color: var(--muted); font-size:0.75rem;"></span>
+        </div>
+      </div>
+
+      <div class="dbg-section">
+        <div class="dbg-label">Request payload</div>
+        <pre id="dbg-request"><span class="empty">No request sent yet.</span></pre>
+      </div>
+
+      <div class="dbg-section">
+        <div class="dbg-label">Response body</div>
+        <pre id="dbg-response"><span class="empty">No response yet.</span></pre>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = "http://localhost:8000/predict";
+    const form = document.getElementById("form");
+    const result = document.getElementById("result");
+    const submitBtn = document.getElementById("submit-btn");
+    const NUMERIC_FIELDS = ["age", "daily_gaming_hours", "sleep_hours", "face_to_face_social_hours_weekly"];
+
+    const EXAMPLES = [
+      { title: "Healthy student", hint: "Balanced gaming + good sleep",
+        payload: { age: 22, gender: "Male", daily_gaming_hours: 2.0, game_genre: "FPS", primary_game: "Valorant", gaming_platform: "PC", sleep_hours: 8.0, sleep_quality: "Good", sleep_disruption_frequency: "Never", face_to_face_social_hours_weekly: 12.0 } },
+      { title: "Casual mobile", hint: "Light mobile gaming",
+        payload: { age: 18, gender: "Female", daily_gaming_hours: 3.0, game_genre: "Mobile Games", primary_game: "Candy Crush", gaming_platform: "Mobile", sleep_hours: 7.0, sleep_quality: "Fair", sleep_disruption_frequency: "Rarely", face_to_face_social_hours_weekly: 10.0 } },
+      { title: "Burnout pro", hint: "12h gaming, 3.5h sleep",
+        payload: { age: 24, gender: "Male", daily_gaming_hours: 12.0, game_genre: "MOBA", primary_game: "League of Legends", gaming_platform: "PC", sleep_hours: 3.5, sleep_quality: "Poor", sleep_disruption_frequency: "Often", face_to_face_social_hours_weekly: 2.0 } },
+      { title: "Weekend warrior", hint: "Moderate console BR",
+        payload: { age: 28, gender: "Male", daily_gaming_hours: 4.0, game_genre: "Battle Royale", primary_game: "Fortnite", gaming_platform: "Console", sleep_hours: 7.0, sleep_quality: "Good", sleep_disruption_frequency: "Sometimes", face_to_face_social_hours_weekly: 8.0 } },
+      { title: "MMO grinder", hint: "Long sessions, isolated",
+        payload: { age: 25, gender: "Male", daily_gaming_hours: 9.0, game_genre: "MMO", primary_game: "World of Warcraft", gaming_platform: "PC", sleep_hours: 5.0, sleep_quality: "Poor", sleep_disruption_frequency: "Often", face_to_face_social_hours_weekly: 3.0 } },
+      { title: "Strategy thinker", hint: "Civ VI on PC, healthy",
+        payload: { age: 32, gender: "Female", daily_gaming_hours: 3.0, game_genre: "Strategy", primary_game: "Civilization VI", gaming_platform: "PC", sleep_hours: 7.5, sleep_quality: "Good", sleep_disruption_frequency: "Rarely", face_to_face_social_hours_weekly: 9.0 } },
+      { title: "RPG explorer", hint: "Elden Ring on console",
+        payload: { age: 27, gender: "Other", daily_gaming_hours: 6.0, game_genre: "RPG", primary_game: "Elden Ring", gaming_platform: "Console", sleep_hours: 6.5, sleep_quality: "Fair", sleep_disruption_frequency: "Sometimes", face_to_face_social_hours_weekly: 7.0 } },
+      { title: "Mobile heavy", hint: "7h mobile gaming",
+        payload: { age: 20, gender: "Female", daily_gaming_hours: 7.0, game_genre: "Mobile Games", primary_game: "Mobile Legends", gaming_platform: "Mobile", sleep_hours: 5.5, sleep_quality: "Poor", sleep_disruption_frequency: "Often", face_to_face_social_hours_weekly: 4.0 } },
+      { title: "Balanced adult", hint: "Low gaming, high social",
+        payload: { age: 35, gender: "Female", daily_gaming_hours: 1.5, game_genre: "RPG", primary_game: "Skyrim", gaming_platform: "PC", sleep_hours: 8.0, sleep_quality: "Good", sleep_disruption_frequency: "Rarely", face_to_face_social_hours_weekly: 14.0 } },
+      { title: "Insomniac", hint: "4h sleep, always disrupted",
+        payload: { age: 19, gender: "Male", daily_gaming_hours: 6.0, game_genre: "FPS", primary_game: "CS:GO", gaming_platform: "PC", sleep_hours: 4.0, sleep_quality: "Insomnia", sleep_disruption_frequency: "Always", face_to_face_social_hours_weekly: 3.0 } },
+    ];
+
+    // Build example buttons
+    const examplesEl = document.getElementById("examples");
+    EXAMPLES.forEach((ex, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.innerHTML = `<span class="ex-title">${i + 1}. ${ex.title}</span><span class="ex-hint">${ex.hint}</span>`;
+      btn.addEventListener("click", () => loadExample(ex.payload));
+      examplesEl.appendChild(btn);
+    });
+
+    function loadExample(payload) {
+      for (const [k, v] of Object.entries(payload)) {
+        const el = form.elements[k];
+        if (el) el.value = v;
+      }
+      result.className = "";
+      result.textContent = "";
+    }
+
+    // Debugger panel helpers
+    const dbgStatus = document.getElementById("dbg-status");
+    const dbgMeta = document.getElementById("dbg-meta");
+    const dbgRequest = document.getElementById("dbg-request");
+    const dbgResponse = document.getElementById("dbg-response");
+
+    function setDebugger({ status, ok, ms, payload, response, error }) {
+      dbgStatus.textContent = status;
+      dbgStatus.className = "status-pill " + (ok ? "ok" : (status === "idle" ? "idle" : "err"));
+      dbgMeta.textContent = ms != null ? `${ms} ms · ${new Date().toLocaleTimeString()}` : "";
+      dbgRequest.textContent = JSON.stringify(payload, null, 2);
+      if (error) {
+        dbgResponse.textContent = String(error);
+      } else {
+        dbgResponse.textContent = JSON.stringify(response, null, 2);
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Predicting...";
+      result.className = "";
+      result.textContent = "";
+
+      const payload = {};
+      for (const [k, v] of new FormData(form).entries()) {
+        payload[k] = NUMERIC_FIELDS.includes(k) ? Number(v) : v;
+      }
+
+      const started = performance.now();
+      try {
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const elapsed = Math.round(performance.now() - started);
+        const data = await resp.json();
+        setDebugger({ status: `HTTP ${resp.status}`, ok: resp.ok, ms: elapsed, payload, response: data });
+
+        if (!resp.ok) {
+          throw new Error(data.detail ? JSON.stringify(data.detail) : `HTTP ${resp.status}`);
+        }
+        const pred = data.prediction;
+        result.className = "show " + pred.toLowerCase();
+        result.innerHTML = `<div class="label">Predicted performance</div><div class="value">${pred}</div>`;
+      } catch (err) {
+        const elapsed = Math.round(performance.now() - started);
+        setDebugger({ status: "error", ok: false, ms: elapsed, payload, error: err.message });
+        result.className = "show error";
+        result.innerHTML = `<div class="label">Error</div><div class="value" style="font-size:1rem;">${err.message}</div>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Predict";
+      }
+    });
+
+    setDebugger({ status: "idle", ok: false, ms: null, payload: null, response: null });
+
+    // On page load, fetch /health to show where the model is coming from
+    (async () => {
+      const el = document.getElementById("model-source-value");
+      try {
+        const r = await fetch("http://localhost:8000/health");
+        const d = await r.json();
+        el.textContent = d.model_source || "unknown";
+        el.style.color = d.model_source?.startsWith("mlflow:") ? "var(--high)" : "var(--medium)";
+        el.title = `model_loaded=${d.model_loaded}, status=${d.status}`;
+      } catch (e) {
+        el.textContent = "API offline";
+        el.style.color = "var(--low)";
+      }
+    })();
+  </script>
+</body>
+</html>
