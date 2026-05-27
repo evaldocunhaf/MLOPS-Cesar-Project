@@ -213,9 +213,9 @@
     <p class="subtitle">Predict academic/work performance from gaming and sleep habits.</p>
 
     <div class="links">
-      🚀 <a href="http://localhost:8000/docs" target="_blank">API docs (Swagger)</a>
+      🚀 <a href="https://gaming-mental-health-api.onrender.com/docs" target="_blank">API docs (Swagger)</a>
       <span class="sep">·</span>
-      ❤️ <a href="http://localhost:8000/health" target="_blank">/health</a>
+      ❤️ <a href="https://gaming-mental-health-api.onrender.com/health" target="_blank">/health</a>
       <span class="sep">·</span>
       🐶 <a href="https://dagshub.com/evaldocunhaf/MLOPs-Cesar" target="_blank">DagsHub repo</a>
       <span class="sep">·</span>
@@ -365,7 +365,7 @@
   </main>
 
   <script>
-    const API_URL = "http://localhost:8000/predict";
+    const API_URL = "https://gaming-mental-health-api.onrender.com/predict";
     const form = document.getElementById("form");
     const result = document.getElementById("result");
     const submitBtn = document.getElementById("submit-btn");
@@ -477,7 +477,7 @@
     (async () => {
       const el = document.getElementById("model-source-value");
       try {
-        const r = await fetch("http://localhost:8000/health");
+        const r = await fetch("https://gaming-mental-health-api.onrender.com/health");
         const d = await r.json();
         el.textContent = d.model_source || "unknown";
         el.style.color = d.model_source?.startsWith("mlflow:") ? "var(--high)" : "var(--medium)";
