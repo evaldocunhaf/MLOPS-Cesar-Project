@@ -30,11 +30,11 @@ help:
 setup:
 	python3 -m venv $(VENV)
 	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements-ml.txt
 
 install:
 	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+	$(PIP) install -r requirements-ml.txt
 
 # ───────────────────────────── Training ─────────────────────────────
 pipeline:
