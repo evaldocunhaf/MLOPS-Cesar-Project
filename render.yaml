@@ -4,7 +4,7 @@ services:
     runtime: python
     region: oregon          # troque para a região mais próxima se quiser
     plan: free              # ou starter / standard
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements-api.txt
     startCommand: uvicorn serve:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
