@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: gaming-mental-health-api
+    runtime: python
+    region: oregon          # troque para a região mais próxima se quiser
+    plan: free              # ou starter / standard
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn serve:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: MLFLOW_TRACKING_URI
+        value: https://dagshub.com/evaldocunhaf/MLOPs-Cesar.mlflow
+      - key: MODEL_URI
+        value: models:/gaming-mental-health/latest
+      # Credenciais do DagsHub para autenticar no MLflow Registry
+      - key: MLFLOW_TRACKING_USERNAME
+        sync: false          # defina manualmente no painel do Render
+      - key: MLFLOW_TRACKING_PASSWORD
+        sync: false          # defina manualmente no painel do Render
+      # URL do front-end (ex: https://meu-app.onrender.com) para liberar CORS
+      - key: ALLOWED_ORIGINS
+        sync: false          # defina manualmente no painel do Render

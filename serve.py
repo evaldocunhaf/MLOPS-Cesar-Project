@@ -1,5 +1,6 @@
 import logging
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import joblib
@@ -17,15 +18,36 @@ load_dotenv()
 
 logger = logging.getLogger("uvicorn.error")
 
+# ---------------------------------------------------------------------------
+# Lifespan: carrega o modelo na inicialização (compatível com Render cold start)
+# ---------------------------------------------------------------------------
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_model()
+    yield
+
+
 app = FastAPI(
     title="Gaming Mental Health Classifier",
     description="Predicts academic/work performance (High/Medium/Low) from gaming and sleep habits.",
     version="1.0.0",
+    lifespan=lifespan,
 )
+
+# ---------------------------------------------------------------------------
+# CORS – aceita localhost (dev) e qualquer origem *.onrender.com (prod)
+# Adicione a URL do seu front-end Render em ALLOWED_ORIGINS no painel do Render
+# ---------------------------------------------------------------------------
+_extra_origins = [
+    o.strip()
+    for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
+_default_origins = ["http://localhost:8501", "http://127.0.0.1:8501"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8501", "http://127.0.0.1:8501"],
+    allow_origins=_default_origins + _extra_origins,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -64,8 +86,6 @@ def load_model():
     except Exception as e:
         logger.error(f"Failed to load local fallback: {e}")
 
-
-load_model()
 
 FEATURES = [
     "age", "gender", "daily_gaming_hours", "game_genre",
