@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel as PydanticModel
 from pydantic import ConfigDict, Field
 
@@ -34,6 +35,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        headers={"Access-Control-Allow-Origin": "*"},
+        content={"detail": exc.errors()},
+    )
+
 # ---------------------------------------------------------------------------
 # CORS – aceita localhost (dev) e qualquer origem *.onrender.com (prod)
 # Adicione a URL do seu front-end Render em ALLOWED_ORIGINS no painel do Render
@@ -47,8 +56,8 @@ _default_origins = ["http://localhost:8501", "http://127.0.0.1:8501"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_default_origins + _extra_origins,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_origins=["*"],   # temporário para debugar
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
